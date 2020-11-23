@@ -20,19 +20,24 @@ class InvoiceController extends Controller
         $data = array();
         $invoices = Invoice::select('*')->get();
         $data = $invoices;
+        // print_r(json_encode($invoices));
 
         $counter = 0;
         foreach($invoices as $k => $v){
             $customer = Customer::select('*')->where('cust_id', '=', $v->cust_id)->first();
             $data[$counter]->cust_id = $customer;
+            // print_r(json_encode($customer));
 
             $cid = explode(',', $v->product_id);
             $prods = array();
             foreach($cid as $k => $cv){
                 $products = Product::select('*')->where('product_id', '=',$cv)->first();
                 array_push($prods, $products);
+                // print_r(json_encode($products));
             }
             $data[$counter]->product_id = $prods;
+            // print_r(json_encode($prods));
+            // print_r($v->product_id);
             $counter++;
         }
         return json_encode($data);
