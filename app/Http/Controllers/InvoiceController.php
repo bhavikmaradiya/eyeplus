@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
 use App\Invoice;
 use App\Customer;
@@ -23,16 +24,22 @@ class InvoiceController extends Controller
 
         $counter = 0;
         foreach($invoices as $k => $v){
+            $custId = json_encode($v->cust_id);
+
             $customer = Customer::select('*')->where('cust_id', '=', $v->cust_id)->first();
             $data[$counter]->cust_id = $customer;
 
-            $cid = explode(',', $v->product_id);
+            $pid = explode(',', $v->product_id);
             $prods = array();
-            foreach($cid as $k => $cv){
-                $products = Product::select('*')->where('product_id', '=',$cv)->first();
+            foreach($pid as $k => $pv){
+                $products = Product::select('*')->where('product_id', '=',$pv)->first();
                 array_push($prods, $products);
             }
             $data[$counter]->product_id = $prods;
+
+            $iPdf = isset($custId) ? "https://eyeplus.xtechsoftsolution.com/invoice_pdf.php?cust_id=".$custId."&last_id=".$v->invoice_id : '';
+            $data[$counter]->invoiceUrl = $iPdf;
+
             $counter++;
         }
         return json_encode($data);
