@@ -26,8 +26,9 @@ Route::get('/edit-customers/{id}', 'CustomerController@edit')->name('edit-custom
 Route::post('/update-customers/{id}', 'CustomerController@update')->name('update-customers');
 
 Route::get('/get-products', 'ProductController@index')->name('get-products');
+Route::get('/product-detail/{id}', 'ProductController@show')->name('product-detail');
 
 Route::get('/get-prescribers', 'PrescriberController@index')->name('get-prescribers');
 
 Route::get('/get-invoice', 'InvoiceController@index')->name('get-invoice');
-Route::get('/create-invoice', 'InvoiceController@create')->name('create-invoice');
+Route::post('/create-invoice', 'InvoiceController@store')->name('create-invoice');

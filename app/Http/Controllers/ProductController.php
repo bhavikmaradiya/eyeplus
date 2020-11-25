@@ -48,7 +48,9 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
+        $products = Product::select('*')->where('product_id', '=', $id)->get();
+        $result_products = isset($products) && $products ? $products : NULL;
+        return $result_products;
     }
 
     /**

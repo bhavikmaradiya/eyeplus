@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Http\Request;
 use App\Invoice;
 use App\Customer;
@@ -20,24 +21,25 @@ class InvoiceController extends Controller
         $data = array();
         $invoices = Invoice::select('*')->get();
         $data = $invoices;
-        // print_r(json_encode($invoices));
 
         $counter = 0;
         foreach($invoices as $k => $v){
+            $custId = json_encode($v->cust_id);
+
             $customer = Customer::select('*')->where('cust_id', '=', $v->cust_id)->first();
             $data[$counter]->cust_id = $customer;
-            // print_r(json_encode($customer));
 
-            $cid = explode(',', $v->product_id);
+            $pid = explode(',', $v->product_id);
             $prods = array();
-            foreach($cid as $k => $cv){
-                $products = Product::select('*')->where('product_id', '=',$cv)->first();
+            foreach($pid as $k => $pv){
+                $products = Product::select('*')->where('product_id', '=',$pv)->first();
                 array_push($prods, $products);
-                // print_r(json_encode($products));
             }
             $data[$counter]->product_id = $prods;
-            // print_r(json_encode($prods));
-            // print_r($v->product_id);
+
+            $iPdf = isset($custId) ? "https://eyeplus.xtechsoftsolution.com/invoice_pdf_api.php?cust_id=".$custId."&last_id=".$v->invoice_id : '';
+            $data[$counter]->invoiceUrl = $iPdf;
+
             $counter++;
         }
         return json_encode($data);
@@ -61,7 +63,17 @@ class InvoiceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $invoice = new Invoice;
+        $invoice->cust_id = isset($request->cust_id) && $request->cust_id ? $request->cust_id : null;
+        $invoice->user_id = isset($request->user_id) && $request->user_id ? $request->user_id : null;
+        $invoice->product_id = isset($request->product_id) && $request->product_id ? $request->product_id : null;
+        $invoice->quantity = isset($request->quantity) && $request->quantity ? $request->quantity : null;
+        $invoice->discount_percentage = isset($request->discount_percentage) && $request->discount_percentage ? $request->discount_percentage : null;
+        $invoice->tax_percentage = isset($request->tax_percentage) && $request->tax_percentage ? $request->tax_percentage : null;
+        $invoice->remarks = isset($request->remarks) && $request->remarks ? $request->remarks : null;
+        $invoice->time = isset($request->time) && $request->time ? $request->time : null;
+        $invoice->place = isset($request->place) && $request->place ? $request->place : null;
+        $invoice->status = isset($request->status) && $request->status ? $request->status : null;
     }
 
     /**
