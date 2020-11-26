@@ -21,8 +21,8 @@ class InvoiceController extends Controller
         $data = array();
         $invoices = Invoice::select('*')->get();
         $data = $invoices;
-
         $counter = 0;
+
         foreach($invoices as $k => $v){
             $custId = json_encode($v->cust_id);
 
@@ -30,12 +30,23 @@ class InvoiceController extends Controller
             $data[$counter]->cust_id = $customer;
 
             $pid = explode(',', $v->product_id);
+            $discount = explode(',', $v->discount_percentage);
+            $quantity = explode(',', $v->quantity);
+
             $prods = array();
+            $grandTotal = 0;
+            $unitPrice = array();
             foreach($pid as $k => $pv){
                 $products = Product::select('*')->where('product_id', '=',$pv)->first();
                 array_push($prods, $products);
+                array_push($unitPrice, $products->sellprice);
+                $discountAmount = $products->sellprice * $discount[$k];
+                $totalPrice = $quantity[$k] * $products->sellprice;
+                $total = $totalPrice - $discountAmount;
+                $grandTotal = $grandTotal + $total;
             }
             $data[$counter]->product_id = $prods;
+            $data[$counter]->total = $grandTotal;
 
             $iPdf = isset($custId) ? "https://eyeplus.xtechsoftsolution.com/invoice_pdf_api.php?cust_id=".$custId."&last_id=".$v->invoice_id : '';
             $data[$counter]->invoiceUrl = $iPdf;
